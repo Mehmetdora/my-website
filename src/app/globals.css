@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 223 50% 8%;
+  --panel: 222 42% 11%;
+  --muted: 221 36% 16%;
+  --border: 220 26% 22%;
+  --ink: 216 38% 94%;
+  --soft: 218 18% 67%;
+  --accent: 186 100% 47%;
+  --signal: 145 63% 45%;
+}
+
+.dark {
+  --surface: 214 28% 8%;
+  --panel: 214 25% 12%;
+  --muted: 212 22% 18%;
+  --border: 214 16% 26%;
+  --ink: 205 26% 92%;
+  --soft: 210 12% 68%;
+  --accent: 188 78% 52%;
+  --signal: 145 56% 52%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: hsl(var(--surface));
+  color: hsl(var(--ink));
+  text-rendering: optimizeLegibility;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  color: hsl(var(--accent));
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.22);
+}
+
+.focus-ring {
+  @apply outline-none ring-offset-2 ring-offset-surface focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.prose-custom {
+  @apply prose prose-slate max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-accent prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none;
+}

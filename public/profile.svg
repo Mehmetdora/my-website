@@ -1,0 +1,8 @@
+<svg width="400" height="494" viewBox="0 0 400 494" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="494" rx="28" fill="#101827"/>
+  <circle cx="200" cy="168" r="82" fill="#172238"/>
+  <circle cx="200" cy="150" r="58" fill="#25344F"/>
+  <path d="M96 404C105 337 145 292 200 292C255 292 295 337 304 404H96Z" fill="#25344F"/>
+  <text x="200" y="176" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="700" fill="#22D3EE">MD</text>
+  <text x="200" y="454" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="#CBD5E1">profile.jpg eklenince değişir</text>
+</svg>
