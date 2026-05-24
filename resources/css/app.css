@@ -1,0 +1,341 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    :root {
+        color-scheme: dark;
+        --surface: 223 50% 8%;
+        --panel: 222 42% 11%;
+        --muted: 221 36% 16%;
+        --border: 220 26% 22%;
+        --ink: 216 38% 94%;
+        --soft: 218 18% 67%;
+        --accent: 186 100% 47%;
+        --signal: 145 63% 45%;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        min-height: 100vh;
+        background: hsl(var(--surface));
+        color: hsl(var(--ink));
+        text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+        background: rgb(93 248 216 / 0.22);
+    }
+}
+
+@layer components {
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        color: hsl(var(--accent));
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .focus-ring {
+        @apply outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1e];
+    }
+
+    .panel {
+        @apply rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--panel))];
+    }
+
+    .badge {
+        @apply inline-flex items-center rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-2 py-1 text-xs font-medium text-[hsl(var(--soft))];
+    }
+
+    .btn-primary {
+        @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[hsl(var(--accent))] px-7 text-sm font-bold text-[#07101f] outline-none transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_#22d3ee] focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--surface))];
+    }
+
+    .btn-outline {
+        @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-cyan-300/25 px-7 text-sm font-bold text-slate-100 outline-none transition hover:border-[hsl(var(--accent))] hover:text-[hsl(var(--accent))] focus-visible:ring-2 focus-visible:ring-[hsl(var(--accent))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--surface))];
+    }
+
+    .shadow-soft {
+        box-shadow: 0 16px 45px -28px rgb(15 23 42 / 0.35);
+    }
+
+    .icon-tooltip {
+        position: relative;
+    }
+
+    .icon-tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 0.55rem);
+        z-index: 60;
+        max-width: 12rem;
+        transform: translateX(-50%) translateY(0.25rem);
+        border: 1px solid rgb(255 255 255 / 0.12);
+        border-radius: 0.375rem;
+        background: rgb(16 24 39 / 0.96);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+        opacity: 0;
+        padding: 0.45rem 0.6rem;
+        pointer-events: none;
+        white-space: nowrap;
+        box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.85);
+        transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .icon-tooltip[data-tooltip-side="bottom"]::after {
+        top: calc(100% + 0.55rem);
+        bottom: auto;
+        transform: translateX(-50%) translateY(-0.25rem);
+    }
+
+    .icon-tooltip[data-tooltip-side="left"]::after {
+        top: 50%;
+        right: calc(100% + 0.55rem);
+        bottom: auto;
+        left: auto;
+        transform: translateY(-50%) translateX(0.25rem);
+    }
+
+    .icon-tooltip:hover::after,
+    .icon-tooltip:focus-visible::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .icon-tooltip[data-tooltip-side="bottom"]:hover::after,
+    .icon-tooltip[data-tooltip-side="bottom"]:focus-visible::after {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .icon-tooltip[data-tooltip-side="left"]:hover::after,
+    .icon-tooltip[data-tooltip-side="left"]:focus-visible::after {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .prose-custom {
+        @apply max-w-none text-slate-300;
+    }
+
+    .prose-custom p {
+        @apply my-5 text-base leading-8 text-slate-300;
+    }
+
+    .prose-custom h2 {
+        @apply mt-10 text-2xl font-extrabold text-white;
+    }
+
+    .prose-custom h1 {
+        @apply mt-10 text-3xl font-extrabold text-white;
+    }
+
+    .prose-custom h3 {
+        @apply mt-8 text-xl font-bold text-white;
+    }
+
+    .prose-custom ul {
+        @apply my-5 list-disc space-y-2 pl-6 text-slate-300;
+    }
+
+    .prose-custom ol {
+        @apply my-5 list-decimal space-y-2 pl-6 text-slate-300;
+    }
+
+    .prose-custom blockquote {
+        @apply my-5 rounded-lg border-l-4 border-[#5DF8D8] bg-white/5 p-4 text-slate-300;
+    }
+
+    .prose-custom pre {
+        @apply my-5 overflow-x-auto rounded-lg border border-white/10 bg-[#0b1220] p-4 text-sm leading-6 text-slate-100;
+    }
+
+    .prose-custom code {
+        @apply rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm text-[#5DF8D8];
+    }
+
+    .prose-custom pre code {
+        @apply bg-transparent p-0 text-slate-100;
+    }
+
+    .prose-custom a {
+        @apply text-[#5DF8D8] underline underline-offset-4 hover:text-[#6FD1D7];
+    }
+
+    .prose-custom img {
+        @apply my-6 max-w-full rounded-lg border border-white/10;
+    }
+
+    .prose-custom iframe {
+        @apply my-6 aspect-video w-full rounded-lg border border-white/10;
+    }
+
+    .prose-custom .ql-align-center {
+        text-align: center;
+    }
+
+    .prose-custom .ql-align-right {
+        text-align: right;
+    }
+
+    .prose-custom .ql-align-justify {
+        text-align: justify;
+    }
+
+    .prose-custom .ql-size-small {
+        font-size: 0.875rem;
+    }
+
+    .prose-custom .ql-size-large {
+        font-size: 1.25rem;
+    }
+
+    .prose-custom .ql-size-huge {
+        font-size: 1.5rem;
+    }
+
+    .admin-input {
+        @apply w-full rounded-md border border-white/10 bg-[#0a0f1e] px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-[#5DF8D8];
+    }
+
+    .admin-textarea {
+        @apply min-h-28 w-full resize-y rounded-md border border-white/10 bg-[#0a0f1e] px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-[#5DF8D8];
+    }
+
+    .ql-toolbar.ql-snow {
+        @apply rounded-t-md border border-white/10 bg-[#0c1424] p-3;
+    }
+
+    .ql-toolbar.ql-snow .ql-formats {
+        @apply mb-2 rounded-md border border-white/10 bg-white/5 p-1;
+    }
+
+    .ql-toolbar.ql-snow button,
+    .ql-toolbar.ql-snow .ql-picker-label {
+        color: rgb(226 232 240) !important;
+    }
+
+    .ql-toolbar.ql-snow button:hover,
+    .ql-toolbar.ql-snow button.ql-active,
+    .ql-toolbar.ql-snow .ql-picker-label:hover,
+    .ql-toolbar.ql-snow .ql-picker-label.ql-active,
+    .ql-toolbar.ql-snow .ql-picker-item:hover,
+    .ql-toolbar.ql-snow .ql-picker-item.ql-selected {
+        color: #5DF8D8 !important;
+    }
+
+    .ql-toolbar.ql-snow button:hover .ql-stroke,
+    .ql-toolbar.ql-snow button.ql-active .ql-stroke,
+    .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke,
+    .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-stroke {
+        stroke: #5DF8D8 !important;
+    }
+
+    .ql-toolbar.ql-snow button:hover .ql-fill,
+    .ql-toolbar.ql-snow button.ql-active .ql-fill {
+        fill: #5DF8D8 !important;
+    }
+
+    .ql-snow .ql-stroke {
+        stroke: rgb(226 232 240) !important;
+    }
+
+    .ql-snow .ql-fill {
+        fill: rgb(226 232 240) !important;
+    }
+
+    .ql-snow .ql-picker-options {
+        @apply rounded-md border border-white/10 bg-[#101827] text-slate-100 shadow-2xl;
+    }
+
+    .ql-container.ql-snow {
+        @apply rounded-b-md border border-white/10 bg-[#0a0f1e];
+    }
+
+    .admin-quill-editor .ql-editor {
+        @apply min-h-[34rem] rounded-b-md border border-white/10 bg-[#0a0f1e] px-5 py-4 text-base leading-8 text-slate-200 outline-none transition focus:border-[#5DF8D8];
+    }
+
+    .admin-quill-editor .ql-editor.ql-blank::before {
+        color: rgb(100 116 139) !important;
+        font-style: normal !important;
+    }
+
+    .admin-quill-editor h1 {
+        @apply mb-4 mt-8 text-2xl font-extrabold leading-tight text-white;
+    }
+
+    .admin-quill-editor h2 {
+        @apply mb-3 mt-6 text-xl font-bold leading-tight text-white;
+    }
+
+    .admin-quill-editor p {
+        @apply my-4 text-slate-300;
+    }
+
+    .admin-quill-editor ul,
+    .admin-quill-editor ol {
+        @apply my-4 list-disc space-y-2 pl-6 text-slate-300;
+    }
+
+    .admin-quill-editor a {
+        @apply text-[#5DF8D8] underline underline-offset-4;
+    }
+
+    .admin-quill-editor blockquote {
+        @apply my-5 border-l-4 border-[#5DF8D8]/50 pl-4 text-slate-300;
+    }
+
+    .admin-quill-editor pre,
+    .admin-quill-editor .ql-code-block-container {
+        @apply my-5 overflow-x-auto rounded-md border border-white/10 bg-black/35 p-4 font-mono text-sm leading-6 text-slate-100;
+    }
+
+    .admin-quill-editor img {
+        @apply my-5 max-w-full rounded-md border border-white/10;
+    }
+
+    .cropper-panel {
+        @apply rounded-lg border border-white/10 bg-[#0a0f1e] p-4;
+    }
+
+    .cropper-stage {
+        @apply relative mx-auto aspect-[2/1] w-full max-w-2xl overflow-hidden rounded-md border border-white/10 bg-black/35;
+        touch-action: none;
+    }
+
+    .cropper-stage img {
+        @apply absolute select-none;
+        max-width: none;
+        pointer-events: none;
+    }
+
+    .cropper-box {
+        @apply absolute cursor-move border-2 border-[#5DF8D8] bg-[#5DF8D8]/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)];
+    }
+
+    .cropper-thumb {
+        @apply rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-slate-300 transition hover:border-[#5DF8D8]/60 hover:text-[#5DF8D8];
+    }
+
+    .cropper-thumb-active {
+        @apply border-[#5DF8D8] bg-[#5DF8D8]/12 text-[#5DF8D8];
+    }
+}
