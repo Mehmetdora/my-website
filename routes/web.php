@@ -50,18 +50,21 @@ Route::middleware([
     Route::post('/admin/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
     Route::get('/admin/projects/{slug}/edit', [ProjectController::class, 'edit'])->name('admin.projects.edit');
     Route::put('/admin/projects/{slug}', [ProjectController::class, 'update'])->name('admin.projects.update');
+    Route::delete('/admin/projects/{slug}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
 
     Route::get('/admin/blog', [PostController::class, 'index'])->name('admin.blog.index');
     Route::get('/admin/blog/create', [PostController::class, 'create'])->name('admin.blog.create');
     Route::post('/admin/blog', [PostController::class, 'store'])->name('admin.blog.store');
     Route::get('/admin/blog/{slug}/edit', [PostController::class, 'edit'])->name('admin.blog.edit');
     Route::put('/admin/blog/{slug}', [PostController::class, 'update'])->name('admin.blog.update');
+    Route::delete('/admin/blog/{slug}', [PostController::class, 'destroy'])->name('admin.blog.destroy');
 
     Route::get('/admin/life', [LifePostController::class, 'index'])->name('admin.life.index');
     Route::get('/admin/life/create', [LifePostController::class, 'create'])->name('admin.life.create');
     Route::post('/admin/life', [LifePostController::class, 'store'])->name('admin.life.store');
     Route::get('/admin/life/{lifePost}/edit', [LifePostController::class, 'edit'])->name('admin.life.edit');
     Route::put('/admin/life/{lifePost}', [LifePostController::class, 'update'])->name('admin.life.update');
+    Route::delete('/admin/life/{lifePost}', [LifePostController::class, 'destroy'])->name('admin.life.destroy');
 
     Route::post('/admin/uploads/images', [UploadController::class, 'image'])->name('admin.uploads.images');
 });

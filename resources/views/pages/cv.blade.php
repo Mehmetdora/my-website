@@ -10,21 +10,21 @@
                 <h1 class="text-4xl font-extrabold tracking-normal text-white sm:text-5xl">{{ $site['name'] }}</h1>
                 <p class="mt-4 text-lg font-semibold text-slate-300">{{ $site['role'] }}</p>
                 <p class="mt-5 max-w-3xl text-base leading-8 text-slate-400">
-                    Embedded sistemler, C/C++, STM32, ESP32 ve IoT odaklı projeler geliştiren; teknik üretimini yazılar ve proje dokümantasyonuyla destekleyen bilgisayar mühendisliği öğrencisi.
+                    Computer engineering student building projects around embedded systems, C/C++, STM32, ESP32, and IoT, while supporting technical work with writing and project documentation.
                 </p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href="{{ route('cv.pdf') }}" class="btn-primary" target="_blank" rel="noopener noreferrer">CV PDF'i Aç</a>
-                    <a href="{{ $site['links']['email'] }}" class="btn-primary">Mail gönder</a>
+                    <a href="{{ route('cv.pdf') }}" class="btn-primary" target="_blank" rel="noopener noreferrer">Open CV PDF</a>
+                    <a href="{{ $site['links']['email'] }}" class="btn-primary">Send Email</a>
                     <a href="{{ $site['links']['github'] }}" class="btn-outline" target="_blank" rel="noopener noreferrer">GitHub</a>
                     <a href="{{ $site['links']['linkedin'] }}" class="btn-outline" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                     <a href="{{ $site['links']['telegram'] }}" class="btn-outline" target="_blank" rel="noopener noreferrer">Telegram</a>
                 </div>
             </div>
             <aside class="panel p-6">
-                <h2 class="text-xl font-bold text-white">Kişisel Bilgiler</h2>
+                <h2 class="text-xl font-bold text-white">Personal Information</h2>
                 <dl class="mt-5 space-y-4 text-sm">
-                    <div><dt class="font-semibold text-slate-500">Konum</dt><dd class="mt-1 text-slate-200">{{ $site['location'] }}</dd></div>
-                    <div><dt class="font-semibold text-slate-500">E-posta</dt><dd class="mt-1 text-slate-200">mehmetdora333@gmail.com</dd></div>
+                    <div><dt class="font-semibold text-slate-500">Location</dt><dd class="mt-1 text-slate-200">{{ $site['location'] }}</dd></div>
+                    <div><dt class="font-semibold text-slate-500">Email</dt><dd class="mt-1 text-slate-200">mehmetdora333@gmail.com</dd></div>
                 </dl>
             </aside>
         </div>

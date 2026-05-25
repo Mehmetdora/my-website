@@ -7,8 +7,8 @@ use App\Models\LifePost;
 use App\Models\LifePostImage;
 use App\Models\SiteSetting;
 use App\Support\CroppedImageStorage;
+use App\Support\StoredAssetCleaner;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class LifePostController extends Controller
@@ -18,7 +18,7 @@ class LifePostController extends Controller
         return view('admin.life.index', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'My Life Yönetimi',
+            'title' => 'My Life Management',
             'site' => SiteSetting::current()->site,
             'lifePosts' => LifePost::query()
                 ->with('images')
@@ -33,7 +33,7 @@ class LifePostController extends Controller
         return view('admin.life.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Yeni Life Paylaşımı',
+            'title' => 'New Life Post',
             'site' => SiteSetting::current()->site,
             'lifePost' => null,
             'mode' => 'create',
@@ -48,7 +48,7 @@ class LifePostController extends Controller
         $lifePost = LifePost::query()->create($data);
         $this->syncUploadedImages($request, $lifePost);
 
-        return redirect()->route('admin.life.edit', $lifePost)->with('status', 'Life paylaşımı oluşturuldu.');
+        return redirect()->route('admin.life.edit', $lifePost)->with('status', 'Life post created.');
     }
 
     public function edit(LifePost $lifePost)
@@ -58,7 +58,7 @@ class LifePostController extends Controller
         return view('admin.life.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Life Paylaşımı Düzenle',
+            'title' => 'Edit Life Post',
             'site' => SiteSetting::current()->site,
             'lifePost' => $lifePost,
             'mode' => 'edit',
@@ -72,7 +72,21 @@ class LifePostController extends Controller
         $lifePost->update($data);
         $this->syncUploadedImages($request, $lifePost);
 
-        return redirect()->route('admin.life.edit', $lifePost)->with('status', 'Life paylaşımı kaydedildi.');
+        return redirect()->route('admin.life.edit', $lifePost)->with('status', 'Life post saved.');
+    }
+
+    public function destroy(LifePost $lifePost)
+    {
+        $lifePost->load('images');
+
+        $lifePost->images->each(function (LifePostImage $image): void {
+            $this->deleteStoredImage($image->url);
+            $image->delete();
+        });
+
+        $lifePost->delete();
+
+        return redirect()->route('admin.life.index')->with('status', 'Life post deleted.');
     }
 
     private function validatedData(Request $request): array
@@ -88,17 +102,17 @@ class LifePostController extends Controller
             'new_images.*' => ['image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
             'new_image_crops' => ['nullable', 'json'],
         ], [
-            'new_images.array' => 'Fotoğraflar doğru formatta gönderilemedi. Lütfen dosyaları yeniden seç.',
-            'new_images.max' => 'Tek paylaşımda en fazla 20 fotoğraf yükleyebilirsin.',
-            'new_images.*.uploaded' => 'Fotoğraflardan biri sunucuya yüklenemedi. Bu genelde fotoğraf boyutu 4 MB sınırını veya sunucunun upload limitini aştığında olur; lütfen daha küçük bir JPG, PNG, GIF veya WebP dosya seç.',
-            'new_images.*.image' => 'Seçilen dosyalardan biri geçerli bir fotoğraf değil.',
-            'new_images.*.mimes' => 'Fotoğraflar sadece JPG, PNG, GIF veya WebP formatında olabilir.',
-            'new_images.*.max' => 'Fotoğraflardan biri çok büyük. Her fotoğraf en fazla 4 MB olabilir.',
-            'new_image_crops.json' => 'Fotoğraf kırpma bilgileri doğru gönderilemedi. Lütfen fotoğrafları yeniden seçip kadrajla.',
-            'keep_image_ids.array' => 'Mevcut fotoğraf seçimleri doğru gönderilemedi. Sayfayı yenileyip tekrar dene.',
-            'keep_image_ids.*.integer' => 'Mevcut fotoğraf seçimlerinden biri geçersiz. Sayfayı yenileyip tekrar dene.',
-            'published_at.date' => 'Tarih alanı geçerli bir tarih olmalı.',
-            'visibility.in' => 'Görünürlük değeri geçersiz. Public, hidden veya private seçmelisin.',
+            'new_images.array' => 'Photos could not be submitted in the correct format. Please select the files again.',
+            'new_images.max' => 'You can upload at most 20 photos in a single post.',
+            'new_images.*.uploaded' => 'One of the photos could not be uploaded. This usually means it exceeded the 4 MB limit or the server upload limit; please choose a smaller JPG, PNG, GIF, or WebP file.',
+            'new_images.*.image' => 'One of the selected files is not a valid photo.',
+            'new_images.*.mimes' => 'Photos must be JPG, PNG, GIF, or WebP.',
+            'new_images.*.max' => 'One of the photos is too large. Each photo can be at most 4 MB.',
+            'new_image_crops.json' => 'Photo crop data could not be submitted correctly. Please select and crop the photos again.',
+            'keep_image_ids.array' => 'Current photo selections could not be submitted correctly. Please refresh the page and try again.',
+            'keep_image_ids.*.integer' => 'One of the current photo selections is invalid. Please refresh the page and try again.',
+            'published_at.date' => 'The date field must be a valid date.',
+            'visibility.in' => 'The visibility value is invalid. Please choose public, hidden, or private.',
         ]);
 
         return [
@@ -122,7 +136,7 @@ class LifePostController extends Controller
 
         if ($keepIds->isEmpty() && count($newFiles) === 0) {
             throw ValidationException::withMessages([
-                'new_images' => 'En az bir fotoğraf yüklemelisin.',
+                'new_images' => 'You must upload at least one photo.',
             ]);
         }
 
@@ -162,17 +176,13 @@ class LifePostController extends Controller
     {
         if (! $request->hasFile('new_images')) {
             throw ValidationException::withMessages([
-                'new_images' => 'Yeni paylaşım oluştururken en az bir fotoğraf yüklemelisin.',
+                'new_images' => 'You must upload at least one photo when creating a new post.',
             ]);
         }
     }
 
     private function deleteStoredImage(string $url): void
     {
-        if (! str_starts_with($url, '/storage/')) {
-            return;
-        }
-
-        Storage::disk('public')->delete(substr($url, strlen('/storage/')));
+        app(StoredAssetCleaner::class)->deleteFromUrl($url);
     }
 }

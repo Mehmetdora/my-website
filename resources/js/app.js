@@ -40,6 +40,105 @@ function openLifeModal(modal) {
     });
 }
 
+function initCarouselTracks(root = document) {
+    root.querySelectorAll('[data-carousel-track]').forEach((track) => {
+        if (track.dataset.carouselReady === 'true') return;
+
+        track.dataset.carouselReady = 'true';
+        let frameId;
+
+        track.addEventListener('scroll', () => {
+            window.cancelAnimationFrame(frameId);
+            frameId = window.requestAnimationFrame(() => {
+                const carousel = track.closest('[data-carousel]');
+                const index = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+                const safeIndex = Math.max(0, Math.min(index, carousel?.querySelectorAll('[data-carousel-dot]').length - 1 || 0));
+
+                updateCarouselDots(carousel, safeIndex);
+
+                const previousTimer = carouselSnapTimers.get(track);
+                if (previousTimer) window.clearTimeout(previousTimer);
+
+                carouselSnapTimers.set(track, window.setTimeout(() => {
+                    track.scrollTo({ left: track.clientWidth * safeIndex, behavior: 'smooth' });
+                }, 120));
+            });
+        }, { passive: true });
+    });
+}
+
+function initLifeInfiniteScroll() {
+    const feed = document.querySelector('[data-life-feed]');
+    const cards = feed?.querySelector('[data-life-cards]');
+    const sentinel = feed?.querySelector('[data-life-sentinel]');
+    const modals = document.querySelector('[data-life-modals]');
+
+    if (!feed || !cards || !sentinel || !modals) return;
+
+    let isLoading = false;
+
+    const setDone = () => {
+        sentinel.classList.add('hidden');
+        feed.dataset.lifeNextUrl = '';
+    };
+
+    const loadNextPage = async () => {
+        const nextUrl = feed.dataset.lifeNextUrl;
+
+        if (isLoading || !nextUrl) return;
+
+        isLoading = true;
+        sentinel.classList.remove('hidden');
+
+        try {
+            const response = await fetch(nextUrl, {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) throw new Error('Life posts could not be loaded.');
+
+            const data = await response.json();
+            cards.insertAdjacentHTML('beforeend', data.cards_html || '');
+            modals.insertAdjacentHTML('beforeend', data.modals_html || '');
+            feed.dataset.lifeNextUrl = data.next_page_url || '';
+            initCarouselTracks(modals);
+
+            if (!feed.dataset.lifeNextUrl) {
+                setDone();
+            }
+        } catch (error) {
+            console.error(error);
+            sentinel.classList.add('hidden');
+        } finally {
+            isLoading = false;
+        }
+    };
+
+    if (!feed.dataset.lifeNextUrl) {
+        setDone();
+        return;
+    }
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                loadNextPage();
+            }
+        }, { rootMargin: '420px 0px' });
+
+        observer.observe(sentinel);
+    } else {
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) {
+                loadNextPage();
+            }
+        }, { passive: true });
+    }
+}
+
 function syncTagPicker(picker) {
     const hidden = picker?.querySelector('[data-tag-hidden]');
     if (!hidden) return;
@@ -120,7 +219,7 @@ function setCropperThumbs(state) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `cropper-thumb ${index === state.index ? 'cropper-thumb-active' : ''}`;
-        button.textContent = state.mode === 'multiple' ? `Fotoğraf ${index + 1}` : 'Kapak';
+        button.textContent = state.mode === 'multiple' ? `Photo ${index + 1}` : 'Cover';
         button.addEventListener('click', () => {
             state.index = index;
             renderImageCropper(state);
@@ -207,7 +306,7 @@ function loadCropperImage(file, aspectRatio) {
         };
         image.onerror = () => {
             URL.revokeObjectURL(url);
-            reject(new Error(`${file.name} görseli önizleme için açılamadı.`));
+            reject(new Error(`${file.name} could not be opened for preview.`));
         };
         image.src = url;
     });
@@ -256,7 +355,7 @@ function initImageCroppers() {
             } catch (error) {
                 state.items = [];
                 renderImageCropper(state);
-                window.alert(error.message || 'Görseller önizleme için açılamadı.');
+                window.alert(error.message || 'Images could not be opened for preview.');
             }
         });
 
@@ -310,12 +409,12 @@ function selectQuillImage(quill) {
         const maxSize = 2 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            window.alert('Sadece PNG, JPG, GIF veya WebP görsel ekleyebilirsin.');
+            window.alert('Only PNG, JPG, GIF, or WebP images are allowed.');
             return;
         }
 
         if (file.size > maxSize) {
-            window.alert('Görsel boyutu en fazla 2 MB olmalı.');
+            window.alert('Image size must be at most 2 MB.');
             return;
         }
 
@@ -337,7 +436,7 @@ function selectQuillImage(quill) {
                     const details = payload?.errors
                         ? Object.values(payload.errors).flat().join('\n')
                         : payload?.message;
-                    throw new Error(details || 'Görsel yüklenemedi. Sunucu dosyayı kabul etmedi.');
+                    throw new Error(details || 'Image upload failed. The server rejected the file.');
                 }
 
                 return payload;
@@ -348,7 +447,7 @@ function selectQuillImage(quill) {
                 quill.insertEmbed(range.index, 'image', url, 'user');
                 quill.setSelection(range.index + 1, 0, 'silent');
             })
-            .catch((error) => window.alert(error.message || 'Görsel yüklenemedi.'));
+            .catch((error) => window.alert(error.message || 'Image upload failed.'));
     });
 }
 
@@ -487,34 +586,16 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-document.querySelectorAll('[data-carousel-track]').forEach((track) => {
-    let frameId;
-
-    track.addEventListener('scroll', () => {
-        window.cancelAnimationFrame(frameId);
-        frameId = window.requestAnimationFrame(() => {
-            const carousel = track.closest('[data-carousel]');
-            const index = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
-            const safeIndex = Math.max(0, Math.min(index, carousel?.querySelectorAll('[data-carousel-dot]').length - 1 || 0));
-
-            updateCarouselDots(carousel, safeIndex);
-
-            const previousTimer = carouselSnapTimers.get(track);
-            if (previousTimer) window.clearTimeout(previousTimer);
-
-            carouselSnapTimers.set(track, window.setTimeout(() => {
-                track.scrollTo({ left: track.clientWidth * safeIndex, behavior: 'smooth' });
-            }, 120));
-        });
-    }, { passive: true });
-});
-
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initQuillEditors();
         initImageCroppers();
+        initCarouselTracks();
+        initLifeInfiniteScroll();
     });
 } else {
     initQuillEditors();
     initImageCroppers();
+    initCarouselTracks();
+    initLifeInfiniteScroll();
 }

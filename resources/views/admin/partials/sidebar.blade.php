@@ -5,22 +5,23 @@
     </a>
 
     <nav class="mt-10 grid gap-2 text-sm font-semibold text-slate-300">
-        <a href="{{ route('admin.dashboard') }}#profile" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'dashboard' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Genel ayarlar</a>
-        <a href="{{ route('admin.dashboard') }}#home" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Ana sayfa</a>
-        <a href="{{ route('admin.dashboard') }}#hobbies" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Hobiler / kişisel taraf</a>
+        <a href="{{ route('admin.dashboard') }}#profile" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'dashboard' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">General settings</a>
+        <a href="{{ route('admin.dashboard') }}#home" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Homepage</a>
+        <a href="{{ route('admin.dashboard') }}#hobbies" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Hobbies / personal side</a>
+        <a href="{{ route('admin.dashboard') }}#about-stats" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">About stats</a>
         <a href="{{ route('admin.dashboard') }}#education" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Education</a>
-        <a href="{{ route('admin.dashboard') }}#tags" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Ortak tag listesi</a>
+        <a href="{{ route('admin.dashboard') }}#tags" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8]">Shared tag list</a>
         <div class="my-3 border-t border-white/10"></div>
-        <a href="{{ route('admin.projects.index') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'projects' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Projeler</a>
-        <a href="{{ route('admin.projects.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'project-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Yeni proje</a>
-        <a href="{{ route('admin.blog.index') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'blog' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Bloglar</a>
-        <a href="{{ route('admin.blog.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'blog-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Yeni blog</a>
+        <a href="{{ route('admin.projects.index') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'projects' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Projects</a>
+        <a href="{{ route('admin.projects.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'project-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">New project</a>
+        <a href="{{ route('admin.blog.index') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'blog' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Blogs</a>
+        <a href="{{ route('admin.blog.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'blog-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">New blog</a>
         <a href="{{ route('admin.life.index') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'life' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">My Life</a>
-        <a href="{{ route('admin.life.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'life-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">Yeni Life paylaşımı</a>
+        <a href="{{ route('admin.life.create') }}" class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-[#5DF8D8] {{ ($active ?? '') === 'life-create' ? 'bg-white/5 text-[#5DF8D8]' : '' }}">New Life post</a>
     </nav>
 
     <form method="POST" action="{{ route('admin.logout') }}" class="absolute bottom-6 left-6 right-6">
         @csrf
-        <button class="btn-outline w-full">Çıkış yap</button>
+        <button class="btn-outline w-full">Logout</button>
     </form>
 </aside>

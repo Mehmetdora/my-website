@@ -1,4 +1,4 @@
-@php($labels = ['planned' => 'Planlandı', 'in-progress' => 'Devam Ediyor', 'completed' => 'Tamamlandı', 'archived' => 'Arşivlendi'])
+@php($labels = ['planned' => 'Planned', 'in-progress' => 'In Progress', 'completed' => 'Completed', 'archived' => 'Archived'])
 <a href="/projects/{{ $project['slug'] }}" class="group flex h-full min-h-[260px] flex-col rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--panel))] p-6 shadow-soft transition hover:-translate-y-0.5 hover:border-[hsl(var(--accent))]">
     <div class="flex flex-1 flex-col">
         <div class="flex flex-wrap gap-2">

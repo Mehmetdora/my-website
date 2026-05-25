@@ -18,7 +18,66 @@ if (! function_exists('tag_items')) {
 if (! function_exists('tr_date')) {
     function tr_date(?string $date): string
     {
-        return $date ? Carbon::parse($date)->locale('tr')->translatedFormat('d F Y') : '';
+        return $date ? Carbon::parse($date)->locale('en')->translatedFormat('F j, Y') : '';
+    }
+}
+
+if (! function_exists('normalize_external_url')) {
+    function normalize_external_url(?string $url, string $fallback = ''): string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return $fallback;
+        }
+
+        if (str_starts_with($url, '#') || str_starts_with($url, '/') || preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+            return $url;
+        }
+
+        return 'https://'.ltrim($url, '/');
+    }
+}
+
+if (! function_exists('normalize_telegram_url')) {
+    function normalize_telegram_url(?string $url, string $fallback = ''): string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return $fallback;
+        }
+
+        if (str_starts_with($url, '@')) {
+            return 'https://t.me/'.ltrim($url, '@');
+        }
+
+        if (! preg_match('/^[a-z][a-z0-9+.-]*:/i', $url) && ! str_contains($url, '/') && ! str_contains($url, '.')) {
+            return 'https://t.me/'.$url;
+        }
+
+        return normalize_external_url($url, $fallback);
+    }
+}
+
+if (! function_exists('normalize_site_links')) {
+    function normalize_site_links(array $site): array
+    {
+        $links = $site['links'] ?? [];
+        $email = trim((string) ($links['email'] ?? ''));
+
+        if ($email !== '' && ! str_starts_with($email, 'mailto:')) {
+            $email = 'mailto:'.$email;
+        }
+
+        $links['email'] = $email;
+        $links['github'] = normalize_external_url($links['github'] ?? '', config('content.site.links.github', ''));
+        $links['linkedin'] = normalize_external_url($links['linkedin'] ?? '', config('content.site.links.linkedin', ''));
+        $links['telegram'] = normalize_telegram_url($links['telegram'] ?? '', config('content.site.links.telegram', ''));
+        $links['cv'] = $links['cv'] ?? '/cv/pdf';
+        $site['links'] = $links;
+
+        return $site;
     }
 }
 

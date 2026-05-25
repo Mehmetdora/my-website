@@ -9,9 +9,9 @@
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <span class="section-label">Blog</span>
-                    <h1 class="mt-1 text-2xl font-extrabold text-white">Blog Yönetimi</h1>
+                    <h1 class="mt-1 text-2xl font-extrabold text-white">Blog Management</h1>
                 </div>
-                <a href="{{ route('admin.blog.create') }}" class="btn-primary min-h-10 px-4">Yeni blog</a>
+                <a href="{{ route('admin.blog.create') }}" class="btn-primary min-h-10 px-4">New blog</a>
             </div>
         </header>
 
@@ -22,19 +22,19 @@
 
             <section class="panel overflow-hidden">
                 <div class="border-b border-white/10 p-6">
-                    <h2 class="text-xl font-extrabold text-white">Tüm blog yazıları</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-400">Kategori sistemi kaldırıldı; bloglar sadece ortak tag listesiyle etiketlenir.</p>
+                    <h2 class="text-xl font-extrabold text-white">All blog posts</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Categories were removed; blogs are labeled only with the shared tag list.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[820px] text-left text-sm">
                         <thead class="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-slate-500">
                             <tr>
                                 <th class="px-6 py-4">Blog</th>
-                                <th class="px-6 py-4">Ortak tagler</th>
-                                <th class="px-6 py-4">Durum</th>
-                                <th class="px-6 py-4">Görünürlük</th>
-                                <th class="px-6 py-4">Yayın tarihi</th>
-                                <th class="px-6 py-4 text-right">İşlem</th>
+                                <th class="px-6 py-4">Shared tags</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Visibility</th>
+                                <th class="px-6 py-4">Published date</th>
+                                <th class="px-6 py-4 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/10">
@@ -48,8 +48,15 @@
                                     <td class="px-6 py-5">{{ $post['status'] }}</td>
                                     <td class="px-6 py-5">{{ $post['visibility'] }}</td>
                                     <td class="px-6 py-5">{{ $post['published_at'] ?? '-' }}</td>
-                                    <td class="px-6 py-5 text-right">
-                                        <a href="{{ route('admin.blog.edit', $post['slug']) }}" class="btn-outline min-h-10 px-4">Düzenle</a>
+                                    <td class="px-6 py-5">
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ route('admin.blog.edit', $post['slug']) }}" class="btn-outline min-h-10 px-4">Edit</a>
+                                            <form method="POST" action="{{ route('admin.blog.destroy', $post['slug']) }}" onsubmit="return confirm('Are you sure you want to delete this blog post? This cannot be undone.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="min-h-10 rounded-md border border-red-400/35 bg-red-500/10 px-4 text-sm font-bold text-red-100 transition hover:border-red-300 hover:bg-red-500/20">Delete</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

@@ -9,9 +9,9 @@
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <span class="section-label">My Life</span>
-                    <h1 class="mt-1 text-2xl font-extrabold text-white">Life Paylaşımları</h1>
+                    <h1 class="mt-1 text-2xl font-extrabold text-white">Life Posts</h1>
                 </div>
-                <a href="{{ route('admin.life.create') }}" class="btn-primary min-h-10 px-4">Yeni paylaşım</a>
+                <a href="{{ route('admin.life.create') }}" class="btn-primary min-h-10 px-4">New post</a>
             </div>
         </header>
 
@@ -22,19 +22,19 @@
 
             <section class="panel overflow-hidden">
                 <div class="border-b border-white/10 p-6">
-                    <h2 class="text-xl font-extrabold text-white">Tüm kişisel paylaşımlar</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-400">Açıklama, konum, tarih ve çoklu fotoğraf yönetimi buradan yapılır.</p>
+                    <h2 class="text-xl font-extrabold text-white">All personal posts</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Description, location, date, and multiple photos are managed here.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[760px] text-left text-sm">
                         <thead class="bg-white/[0.03] text-xs uppercase tracking-[0.12em] text-slate-500">
                             <tr>
-                                <th class="px-6 py-4">Açıklama</th>
-                                <th class="px-6 py-4">Tarih</th>
-                                <th class="px-6 py-4">Konum</th>
-                                <th class="px-6 py-4">Görünürlük</th>
-                                <th class="px-6 py-4">Fotoğraf</th>
-                                <th class="px-6 py-4 text-right">İşlem</th>
+                                <th class="px-6 py-4">Description</th>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4">Location</th>
+                                <th class="px-6 py-4">Visibility</th>
+                                <th class="px-6 py-4">Photo</th>
+                                <th class="px-6 py-4 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/10">
@@ -45,8 +45,15 @@
                                     <td class="px-6 py-5">{{ $lifePost->location ?: '-' }}</td>
                                     <td class="px-6 py-5">{{ $lifePost->visibility }}</td>
                                     <td class="px-6 py-5">{{ $lifePost->images_count ?? $lifePost->images->count() }}</td>
-                                    <td class="px-6 py-5 text-right">
-                                        <a href="{{ route('admin.life.edit', $lifePost) }}" class="btn-outline min-h-10 px-4">Düzenle</a>
+                                    <td class="px-6 py-5">
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ route('admin.life.edit', $lifePost) }}" class="btn-outline min-h-10 px-4">Edit</a>
+                                            <form method="POST" action="{{ route('admin.life.destroy', $lifePost) }}" onsubmit="return confirm('Are you sure you want to delete this Life post? Its photos will also be deleted. This cannot be undone.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="min-h-10 rounded-md border border-red-400/35 bg-red-500/10 px-4 text-sm font-bold text-red-100 transition hover:border-red-300 hover:bg-red-500/20">Delete</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

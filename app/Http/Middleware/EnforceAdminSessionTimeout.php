@@ -22,13 +22,13 @@ class EnforceAdminSessionTimeout
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Admin oturum süresi doldu. Lütfen tekrar giriş yap.',
+                    'message' => 'Admin session expired. Please log in again.',
                 ], 401);
             }
 
             return redirect()
                 ->route('admin.login')
-                ->withErrors(['email' => 'Admin oturum süresi doldu. Lütfen tekrar giriş yap.']);
+                ->withErrors(['email' => 'Admin session expired. Please log in again.']);
         }
 
         $request->session()->put('admin_last_activity', $now);

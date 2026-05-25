@@ -38,16 +38,16 @@ class DashboardController extends Controller
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'delete_profile_image' => ['nullable', 'boolean'],
         ], [
-            'cv_pdf.uploaded' => 'CV PDF sunucuya yüklenemedi. Bu genelde dosya boyutu sunucunun upload limitini aştığında olur; CV dosyası en fazla 10 MB ve PDF formatında olmalı.',
-            'cv_pdf.file' => 'CV alanına yüklenen içerik dosya olarak okunamadı. Lütfen tekrar PDF seç.',
-            'cv_pdf.mimes' => 'CV dosyası PDF olmalı. DOC, DOCX, JPG veya başka formatlar kabul edilmez.',
-            'cv_pdf.max' => 'CV PDF dosyası çok büyük. Maksimum 10 MB yükleyebilirsin.',
-            'profile_image.uploaded' => 'Profil fotoğrafı sunucuya yüklenemedi. Bu genelde dosya boyutu sunucunun upload limitini aştığında olur; profil fotoğrafı en fazla 4 MB ve JPG, PNG veya WebP olmalı.',
-            'profile_image.image' => 'Profil fotoğrafı geçerli bir görsel dosyası değil.',
-            'profile_image.mimes' => 'Profil fotoğrafı JPG, PNG veya WebP formatında olmalı.',
-            'profile_image.max' => 'Profil fotoğrafı çok büyük. Maksimum 4 MB yükleyebilirsin.',
-            'delete_cv_pdf.boolean' => 'CV silme seçimi geçersiz gönderildi. Sayfayı yenileyip tekrar dene.',
-            'delete_profile_image.boolean' => 'Profil fotoğrafı silme seçimi geçersiz gönderildi. Sayfayı yenileyip tekrar dene.',
+            'cv_pdf.uploaded' => 'The CV PDF could not be uploaded. This usually means the file exceeded the server upload limit; the CV must be a PDF and at most 10 MB.',
+            'cv_pdf.file' => 'The uploaded CV could not be read as a file. Please select the PDF again.',
+            'cv_pdf.mimes' => 'The CV file must be a PDF. DOC, DOCX, JPG, or other formats are not accepted.',
+            'cv_pdf.max' => 'The CV PDF is too large. You can upload at most 10 MB.',
+            'profile_image.uploaded' => 'The profile photo could not be uploaded. This usually means the file exceeded the server upload limit; the profile photo must be at most 4 MB and JPG, PNG, or WebP.',
+            'profile_image.image' => 'The profile photo is not a valid image file.',
+            'profile_image.mimes' => 'The profile photo must be JPG, PNG, or WebP.',
+            'profile_image.max' => 'The profile photo is too large. You can upload at most 4 MB.',
+            'delete_cv_pdf.boolean' => 'The CV delete option was submitted incorrectly. Please refresh the page and try again.',
+            'delete_profile_image.boolean' => 'The profile photo delete option was submitted incorrectly. Please refresh the page and try again.',
         ]);
 
         $settings = SiteSetting::current();
@@ -58,10 +58,11 @@ class DashboardController extends Controller
         $site['name'] = $request->string('site_name')->trim()->toString();
         $site['role'] = $request->string('site_role')->trim()->toString();
         $site['location'] = $request->string('site_location')->trim()->toString();
-        $site['links']['email'] = 'mailto:'.$request->string('site_email')->trim()->toString();
-        $site['links']['github'] = $request->string('github')->trim()->toString();
-        $site['links']['linkedin'] = $request->string('linkedin')->trim()->toString();
-        $site['links']['telegram'] = $request->string('telegram')->trim()->toString();
+        $email = $request->string('site_email')->trim()->toString();
+        $site['links']['email'] = $email === '' ? '' : 'mailto:'.preg_replace('/^mailto:/i', '', $email);
+        $site['links']['github'] = normalize_external_url($request->string('github')->trim()->toString());
+        $site['links']['linkedin'] = normalize_external_url($request->string('linkedin')->trim()->toString());
+        $site['links']['telegram'] = normalize_telegram_url($request->string('telegram')->trim()->toString());
         $site['links']['cv'] = '/cv/pdf';
 
         if ($request->boolean('delete_cv_pdf')) {
@@ -73,7 +74,7 @@ class DashboardController extends Controller
             $this->deleteStoredCv($site['cv_pdf_url'] ?? null);
             $file = $request->file('cv_pdf');
             $path = $file->store('cv', 'public');
-            $site['cv_pdf_url'] = Storage::url($path);
+            $site['cv_pdf_url'] = '/storage/'.ltrim($path, '/');
             $site['cv_pdf_name'] = $file->getClientOriginalName();
         }
 
@@ -86,7 +87,7 @@ class DashboardController extends Controller
             $this->deleteStoredProfileImage($site['profile_image'] ?? null);
             $file = $request->file('profile_image');
             $path = $file->store('profile', 'public');
-            $site['profile_image'] = Storage::url($path);
+            $site['profile_image'] = '/storage/'.ltrim($path, '/');
         }
 
         $home['top_skills'] = collect($request->input('top_skills', []))
@@ -104,6 +105,14 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
+        $about['stats'] = collect($request->input('about_stats', []))
+            ->map(fn ($item) => [
+                'value' => trim((string) ($item['value'] ?? '')),
+                'label' => trim((string) ($item['label'] ?? '')),
+            ])
+            ->filter(fn ($item) => $item['value'] !== '' || $item['label'] !== '')
+            ->values()
+            ->all();
         $about['hobbies'] = collect($request->input('hobbies', []))
             ->map(fn ($item) => [
                 'title' => trim((string) ($item['title'] ?? '')),
@@ -142,7 +151,7 @@ class DashboardController extends Controller
             Tag::query()->whereNotIn('slug', $submittedTagSlugs)->delete();
         }
 
-        return back()->with('status', 'Genel ayarlar kaydedildi.');
+        return back()->with('status', 'General settings saved.');
     }
 
     private function deleteStoredCv(?string $url): void

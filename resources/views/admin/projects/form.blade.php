@@ -19,12 +19,12 @@
             return '<ul>'.$items.'</ul>';
         }
 
-        return '<p>'.e($block['text'] ?? 'Proje amacını, devre/kod yapısını, karşılaştığın sorunları ve sonucu burada anlat.').'</p>';
+        return '<p>'.e($block['text'] ?? 'Describe the project goal, circuit/code structure, problems you faced, and the result here.').'</p>';
         })->implode('');
     }
 
     if ($initialContentHtml === '') {
-        $initialContentHtml = '<h2>Proje amacı</h2><p>Bu projede neyi çözmek veya öğrenmek istediğini yaz.</p><h2>Teknik detaylar</h2><p>Donanım, yazılım akışı, haberleşme protokolleri ve mimari kararları burada anlat.</p><pre>// Örnek kod bloğu</pre>';
+        $initialContentHtml = '<h2>Project Goal</h2><p>Write what you want to solve or learn with this project.</p><h2>Technical Details</h2><p>Describe hardware, software flow, communication protocols, and architecture decisions here.</p><pre>// Example code block</pre>';
     }
 @endphp
 
@@ -37,9 +37,9 @@
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <span class="section-label">Project Editor</span>
-                    <h1 class="mt-1 text-2xl font-extrabold text-white">{{ $isEdit ? 'Proje Düzenle' : 'Yeni Proje Oluştur' }}</h1>
+                    <h1 class="mt-1 text-2xl font-extrabold text-white">{{ $isEdit ? 'Edit Project' : 'Create New Project' }}</h1>
                 </div>
-                <a href="{{ route('admin.projects.index') }}" class="btn-outline min-h-10 px-4">Projeler</a>
+                <a href="{{ route('admin.projects.index') }}" class="btn-outline min-h-10 px-4">Projects</a>
             </div>
         </header>
 
@@ -62,37 +62,37 @@
                 <section class="panel p-6">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                            <h2 class="text-xl font-extrabold text-white">Proje bilgileri</h2>
-                            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Başlık, durum, tagler, teknolojiler ve ana sayfa görünürlüğü tek yerde. Ekran sade kalsın diye alanlar iki ana kutuda toplandı.</p>
+                            <h2 class="text-xl font-extrabold text-white">Project Information</h2>
+                            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Title, status, tags, technologies, and homepage visibility are grouped here. Fields are kept in two main panels to keep the screen simple.</p>
                         </div>
-                        <button class="btn-primary min-h-10 px-4">{{ $isEdit ? 'Projeyi kaydet' : 'Projeyi oluştur' }}</button>
+                        <button class="btn-primary min-h-10 px-4">{{ $isEdit ? 'Save Project' : 'Create Project' }}</button>
                     </div>
 
                     <div class="mt-6 grid gap-4 lg:grid-cols-2">
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Proje adı<input class="admin-input" name="title" value="{{ $project['title'] ?? '' }}" placeholder="STM32 Sensor Dashboard"></label>
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Project Name<input class="admin-input" name="title" value="{{ $project['title'] ?? '' }}" placeholder="STM32 Sensor Dashboard"></label>
                         <label class="grid gap-2 text-sm font-semibold text-slate-300">Slug<input class="admin-input" name="slug" value="{{ $project['slug'] ?? '' }}" placeholder="stm32-sensor-dashboard" data-lowercase></label>
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300 lg:col-span-2">Kısa açıklama<textarea class="admin-textarea min-h-24" name="summary" placeholder="Projenin public listelerde görünecek kısa özeti">{{ $project['summary'] ?? '' }}</textarea></label>
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300 lg:col-span-2">Short Description<textarea class="admin-textarea min-h-24" name="summary" placeholder="The short summary shown in public lists">{{ $project['summary'] ?? '' }}</textarea></label>
                     </div>
 
                     <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Durum
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Status
                             <select class="admin-input" name="status">
-                                @foreach(['planned' => 'Planlandı', 'in-progress' => 'Devam ediyor', 'completed' => 'Tamamlandı', 'archived' => 'Arşivlendi'] as $value => $label)
+                                @foreach(['planned' => 'Planned', 'in-progress' => 'In progress', 'completed' => 'Completed', 'archived' => 'Archived'] as $value => $label)
                                     <option value="{{ $value }}" @selected(($project['status'] ?? 'planned') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </label>
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Görünürlük
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Visibility
                             <select class="admin-input" name="visibility">
                                 @foreach(['public' => 'Public', 'hidden' => 'Hidden', 'private' => 'Private'] as $value => $label)
                                     <option value="{{ $value }}" @selected(($project['visibility'] ?? 'public') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </label>
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Ana sayfa
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Homepage
                             <select class="admin-input" name="featured">
-                                <option value="1" @selected($project['featured'] ?? false)>Ana sayfada göster</option>
-                                <option value="0" @selected(!($project['featured'] ?? false))>Gösterme</option>
+                                <option value="1" @selected($project['featured'] ?? false)>Show on homepage</option>
+                                <option value="0" @selected(!($project['featured'] ?? false))>Do not show</option>
                             </select>
                         </label>
                         <label class="grid gap-2 text-sm font-semibold text-slate-300">GitHub URL<input class="admin-input" name="github" value="{{ $project['github'] ?? '' }}" placeholder="https://github.com/..."></label>
@@ -102,10 +102,10 @@
                         <div data-tag-picker>
                             <div class="flex items-center justify-between gap-3">
                                 <div>
-                                    <h3 class="text-sm font-bold text-white">Ortak tag seçimi</h3>
-                                    <p class="mt-1 text-xs leading-5 text-slate-500">Blog ve projeler aynı tag listesini kullanır. Tag seçmek için üstüne tıkla.</p>
+                                    <h3 class="text-sm font-bold text-white">Shared Tag Selection</h3>
+                                    <p class="mt-1 text-xs leading-5 text-slate-500">Blog and projects use the same tag list. Click a tag to select it.</p>
                                 </div>
-                                <span class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-slate-400">Çoklu seçim</span>
+                                <span class="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs font-bold text-slate-400">Multiple selection</span>
                             </div>
                             <div class="mt-3 flex flex-wrap gap-2" data-tag-options>
                                 @foreach($tags as $tag)
@@ -120,9 +120,9 @@
                             </div>
                         </div>
 
-                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Teknolojiler
-                            <textarea class="admin-textarea min-h-40" name="technologies" placeholder="Her satıra bir teknoloji veya donanım yaz">{{ implode("\n", $technologies) }}</textarea>
-                            <span class="text-xs font-normal text-slate-500">Örn. STM32, UART, DMA, STM32CubeIDE, logic analyzer.</span>
+                        <label class="grid gap-2 text-sm font-semibold text-slate-300">Technologies
+                            <textarea class="admin-textarea min-h-40" name="technologies" placeholder="Write one technology or hardware item per line">{{ implode("\n", $technologies) }}</textarea>
+                            <span class="text-xs font-normal text-slate-500">Ex. STM32, UART, DMA, STM32CubeIDE, logic analyzer.</span>
                         </label>
                     </div>
                 </section>
@@ -130,13 +130,13 @@
                 <section class="panel overflow-hidden">
                     <div class="border-b border-white/10 p-6">
                         <span class="section-label">Quill JS Editor</span>
-                        <h2 class="mt-2 text-xl font-extrabold text-white">Detay içeriği</h2>
-                        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Quill JS ile başlık, font, boyut, renk, link, video, kod bloğu, liste, hizalama ve resim dosyası ekleme desteklenir. Resimler güvenli upload endpoint'i üzerinden kaydedilir.</p>
+                        <h2 class="mt-2 text-xl font-extrabold text-white">Detailed Content</h2>
+                        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Quill JS supports headings, fonts, sizes, colors, links, videos, code blocks, lists, alignment, and image uploads. Images are saved through a secure upload endpoint.</p>
                     </div>
 
                     <div class="p-6">
                         <input id="project-content-html" type="hidden" name="content_html" value="{{ $initialContentHtml }}">
-                        <div id="project-content-editor" class="admin-quill-editor" data-quill-editor data-quill-input="project-content-html" data-placeholder="Proje amacı, devre/kod yapısı, karşılaşılan sorunlar, çözüm ve sonuçları yaz."></div>
+                        <div id="project-content-editor" class="admin-quill-editor" data-quill-editor data-quill-input="project-content-html" data-placeholder="Write the project goal, circuit/code structure, problems faced, solutions, and results."></div>
                     </div>
                 </section>
             </form>

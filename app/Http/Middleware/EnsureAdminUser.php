@@ -21,7 +21,7 @@ class EnsureAdminUser
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            abort(403, 'Bu admin alanına erişim yetkin yok.');
+            abort(403, 'You are not authorized to access this admin area.');
         }
 
         return $next($request);

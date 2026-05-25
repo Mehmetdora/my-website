@@ -38,7 +38,7 @@ class CroppedImageStorage
             ->crop($cropWidth, $cropHeight, $cropX, $cropY)
             ->save($absolutePath, quality: 88);
 
-        return Storage::url($path);
+        return '/storage/'.ltrim($path, '/');
     }
 
     private function parseCrop(?string $cropJson): ?array

@@ -7,8 +7,8 @@ use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Tag;
 use App\Support\CroppedImageStorage;
+use App\Support\StoredAssetCleaner;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -18,7 +18,7 @@ class PostController extends Controller
         return view('admin.blog.index', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Blog Yönetimi',
+            'title' => 'Blog Management',
             'site' => SiteSetting::current()->site,
             'posts' => Post::query()->with('tags')->latest()->get()->map->toViewArray()->all(),
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -30,7 +30,7 @@ class PostController extends Controller
         return view('admin.blog.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Yeni Blog',
+            'title' => 'New Blog',
             'site' => SiteSetting::current()->site,
             'post' => null,
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -53,7 +53,7 @@ class PostController extends Controller
         $post = Post::query()->create($data);
         $this->syncTags($post, $request->input('tags', []));
 
-        return redirect()->route('admin.blog.edit', $post->slug)->with('status', 'Blog oluşturuldu.');
+        return redirect()->route('admin.blog.edit', $post->slug)->with('status', 'Blog created.');
     }
 
     public function edit(string $slug)
@@ -63,7 +63,7 @@ class PostController extends Controller
         return view('admin.blog.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Blog Düzenle',
+            'title' => 'Edit Blog',
             'site' => SiteSetting::current()->site,
             'post' => $post->toViewArray(),
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -93,7 +93,19 @@ class PostController extends Controller
         $post->update($data);
         $this->syncTags($post, $request->input('tags', []));
 
-        return redirect()->route('admin.blog.edit', $post->slug)->with('status', 'Blog kaydedildi.');
+        return redirect()->route('admin.blog.edit', $post->slug)->with('status', 'Blog saved.');
+    }
+
+    public function destroy(string $slug)
+    {
+        $post = Post::query()->where('slug', $slug)->firstOrFail();
+
+        $this->deleteStoredCover($post->cover_url);
+        app(StoredAssetCleaner::class)->deleteImagesFromHtml($post->content_html);
+        $post->tags()->detach();
+        $post->delete();
+
+        return redirect()->route('admin.blog.index')->with('status', 'Blog deleted.');
     }
 
     private function validatedData(Request $request, ?int $ignoreId = null, ?Post $post = null): array
@@ -113,12 +125,12 @@ class PostController extends Controller
             'tags' => ['required', 'array', 'min:1'],
             'tags.*' => ['required', 'string'],
         ], [
-            'cover_image.uploaded' => 'Kapak görseli sunucuya yüklenemedi. Bu genelde dosya boyutu 4 MB sınırını veya sunucunun upload limitini aştığında olur; lütfen daha küçük bir JPG, PNG, GIF veya WebP dosya seç.',
-            'cover_image.image' => 'Kapak görseli geçerli bir görsel dosyası değil.',
-            'cover_image.mimes' => 'Kapak görseli sadece JPG, PNG, GIF veya WebP formatında olabilir.',
-            'cover_image.max' => 'Kapak görseli çok büyük. En fazla 4 MB olabilir.',
-            'cover_crop.json' => 'Kapak görseli kırpma bilgisi doğru gönderilemedi. Lütfen görseli yeniden seçip kadrajla.',
-            'delete_cover_image.boolean' => 'Kapak görseli silme seçimi geçersiz gönderildi. Sayfayı yenileyip tekrar dene.',
+            'cover_image.uploaded' => 'The cover image could not be uploaded. This usually means the file exceeded the 4 MB limit or the server upload limit; please choose a smaller JPG, PNG, GIF, or WebP file.',
+            'cover_image.image' => 'The cover image is not a valid image file.',
+            'cover_image.mimes' => 'The cover image must be JPG, PNG, GIF, or WebP.',
+            'cover_image.max' => 'The cover image is too large. It can be at most 4 MB.',
+            'cover_crop.json' => 'The cover crop data could not be submitted correctly. Please choose and crop the image again.',
+            'delete_cover_image.boolean' => 'The cover image delete option was submitted incorrectly. Please refresh the page and try again.',
         ]);
 
         $slug = Str::slug(strtolower($validated['slug'] ?: $validated['title']));
@@ -146,7 +158,7 @@ class PostController extends Controller
             ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
             ->exists();
 
-        abort_if($exists, 422, 'Bu blog slug değeri zaten kullanılıyor.');
+        abort_if($exists, 422, 'This blog slug is already in use.');
     }
 
     private function syncTags(Post $post, array $slugs): void
@@ -163,15 +175,11 @@ class PostController extends Controller
         $expected = collect($slugs)->map(fn ($slug) => strtolower((string) $slug))->filter()->unique()->values();
         $found = Tag::query()->whereIn('slug', $expected)->count();
 
-        abort_if($expected->count() !== $found, 422, 'Seçilen taglerden biri bulunamadı.');
+        abort_if($expected->count() !== $found, 422, 'One of the selected tags could not be found.');
     }
 
     private function deleteStoredCover(?string $url): void
     {
-        if (! $url || ! str_starts_with($url, '/storage/blog/')) {
-            return;
-        }
-
-        Storage::disk('public')->delete(substr($url, strlen('/storage/')));
+        app(StoredAssetCleaner::class)->deleteFromUrl($url);
     }
 }

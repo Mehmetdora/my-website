@@ -13,23 +13,23 @@ class UploadController extends Controller
         $validated = $request->validate([
             'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
         ], [
-            'image.required' => 'Görsel seçilmedi. Lütfen editöre eklemek için bir dosya seç.',
-            'image.uploaded' => 'Görsel sunucuya yüklenemedi. Bu genelde dosya boyutu sunucunun upload limitini aştığında olur; editör içi görseller için 2 MB altında PNG, JPG, GIF veya WebP dosya seç.',
-            'image.image' => 'Seçilen dosya geçerli bir görsel değil. PNG, JPG, GIF veya WebP yüklemelisin.',
-            'image.mimes' => 'Desteklenmeyen görsel formatı. Sadece JPG, PNG, GIF veya WebP kabul edilir.',
-            'image.max' => 'Görsel çok büyük. Editör içi görseller en fazla 2 MB olabilir.',
+            'image.required' => 'No image was selected. Please choose a file to insert into the editor.',
+            'image.uploaded' => 'The image could not be uploaded. This usually means the file exceeded the server upload limit; please choose a PNG, JPG, GIF, or WebP file under 2 MB.',
+            'image.image' => 'The selected file is not a valid image. Please upload PNG, JPG, GIF, or WebP.',
+            'image.mimes' => 'Unsupported image format. Only JPG, PNG, GIF, or WebP files are accepted.',
+            'image.max' => 'The image is too large. Editor images can be at most 2 MB.',
         ]);
 
         $path = Storage::disk('public')->putFile('uploads', $validated['image']);
 
         if (! is_string($path) || $path === '') {
             return response()->json([
-                'message' => 'Görsel dosyası kaydedilemedi. Lütfen dosya izinlerini ve storage bağlantısını kontrol et.',
+                'message' => 'The image file could not be saved. Please check file permissions and the storage link.',
             ], 500);
         }
 
         return response()->json([
-            'url' => Storage::disk('public')->url($path),
+            'url' => '/storage/'.ltrim($path, '/'),
         ]);
     }
 }

@@ -54,9 +54,10 @@ class PublicPageController extends Controller
             ->published()
             ->when($activeTag, fn ($query) => $query->whereHas('tags', fn ($tagQuery) => $tagQuery->whereRaw('lower(slug) = ?', [$activeTag])))
             ->latest('published_at')
-            ->get()
-            ->map->toViewArray()
-            ->all();
+            ->paginate(12)
+            ->withQueryString();
+
+        $posts->setCollection($posts->getCollection()->map->toViewArray());
 
         return view('pages.blog-index', [
             'posts' => $posts,
@@ -99,9 +100,9 @@ class PublicPageController extends Controller
             ->with('tags')
             ->visible()
             ->latest()
-            ->get()
-            ->map->toViewArray()
-            ->all();
+            ->paginate(12);
+
+        $projects->setCollection($projects->getCollection()->map->toViewArray());
 
         return view('pages.projects-index', [
             'projects' => $projects,
@@ -137,16 +138,29 @@ class PublicPageController extends Controller
         ]);
     }
 
-    public function life()
+    public function life(Request $request)
     {
         $lifePosts = LifePost::query()
             ->with('images')
             ->visible()
             ->orderByDesc('published_at')
             ->latest()
-            ->get()
-            ->map->toViewArray()
-            ->all();
+            ->paginate(9)
+            ->withQueryString();
+
+        $lifePosts->setCollection($lifePosts->getCollection()->map->toViewArray());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'cards_html' => $lifePosts->getCollection()
+                    ->map(fn (array $item): string => view('partials.life-card', ['item' => $item])->render())
+                    ->implode(''),
+                'modals_html' => $lifePosts->getCollection()
+                    ->map(fn (array $item): string => view('partials.life-modal', ['item' => $item])->render())
+                    ->implode(''),
+                'next_page_url' => $lifePosts->nextPageUrl(),
+            ]);
+        }
 
         return view('pages.life', [
             'lifePosts' => $lifePosts,

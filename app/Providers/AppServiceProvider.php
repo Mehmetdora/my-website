@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
         $settings = SiteSetting::current();
 
-        Config::set('content.site', $settings->site);
+        Config::set('content.site', normalize_site_links($settings->site));
         Config::set('content.home', $settings->home);
         Config::set('content.about', $settings->about);
 

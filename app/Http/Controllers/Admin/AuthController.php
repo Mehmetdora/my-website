@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         if (! $this->isAllowedAdminEmail($credentials['email']) || ! Auth::attempt($credentials)) {
             return back()
-                ->withErrors(['email' => 'Email veya şifre hatalı.'])
+                ->withErrors(['email' => 'Email or password is incorrect.'])
                 ->onlyInput('email');
         }
 

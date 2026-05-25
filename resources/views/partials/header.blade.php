@@ -1,7 +1,7 @@
 @php($site = config('content.site'))
 <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0a0f1e]/95 backdrop-blur">
     <div class="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="/" class="focus-ring flex items-center gap-3 rounded-md" aria-label="Ana sayfaya git">
+        <a href="/" class="focus-ring flex items-center gap-3 rounded-md" aria-label="Go to home page">
             <span class="inline-flex h-11 w-11 items-center justify-center text-[34px] leading-none" aria-hidden="true">🇹🇷</span>
             <span class="hidden text-base font-semibold text-white sm:inline">{{ $site['name'] }}</span>
         </a>
@@ -25,7 +25,7 @@
             </div>
         </nav>
 
-        <button type="button" data-mobile-toggle class="icon-tooltip focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-white/5 text-white lg:hidden" aria-label="Menüyü aç" data-tooltip="Menüyü aç" data-tooltip-side="bottom">
+        <button type="button" data-mobile-toggle class="icon-tooltip focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-white/5 text-white lg:hidden" aria-label="Open menu" data-tooltip="Open menu" data-tooltip-side="bottom">
             <span class="text-2xl leading-none">☰</span>
         </button>
     </div>

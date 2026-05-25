@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\SiteSetting;
 use App\Models\Tag;
+use App\Support\StoredAssetCleaner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -16,7 +17,7 @@ class ProjectController extends Controller
         return view('admin.projects.index', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Proje Yönetimi',
+            'title' => 'Project Management',
             'site' => SiteSetting::current()->site,
             'projects' => Project::query()->with('tags')->latest()->get()->map->toViewArray()->all(),
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -28,7 +29,7 @@ class ProjectController extends Controller
         return view('admin.projects.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Yeni Proje',
+            'title' => 'New Project',
             'site' => SiteSetting::current()->site,
             'project' => null,
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -41,7 +42,7 @@ class ProjectController extends Controller
         $project = Project::query()->create($this->validatedData($request));
         $this->syncTags($project, $request->input('tags', []));
 
-        return redirect()->route('admin.projects.edit', $project->slug)->with('status', 'Proje oluşturuldu.');
+        return redirect()->route('admin.projects.edit', $project->slug)->with('status', 'Project created.');
     }
 
     public function edit(string $slug)
@@ -51,7 +52,7 @@ class ProjectController extends Controller
         return view('admin.projects.form', [
             'admin' => true,
             'noindex' => true,
-            'title' => 'Proje Düzenle',
+            'title' => 'Edit Project',
             'site' => SiteSetting::current()->site,
             'project' => $project->toViewArray(),
             'tags' => Tag::query()->orderBy('name')->get()->map->toViewArray()->all(),
@@ -65,7 +66,18 @@ class ProjectController extends Controller
         $project->update($this->validatedData($request, $project->id));
         $this->syncTags($project, $request->input('tags', []));
 
-        return redirect()->route('admin.projects.edit', $project->slug)->with('status', 'Proje kaydedildi.');
+        return redirect()->route('admin.projects.edit', $project->slug)->with('status', 'Project saved.');
+    }
+
+    public function destroy(string $slug)
+    {
+        $project = Project::query()->where('slug', $slug)->firstOrFail();
+
+        app(StoredAssetCleaner::class)->deleteImagesFromHtml($project->content_html);
+        $project->tags()->detach();
+        $project->delete();
+
+        return redirect()->route('admin.projects.index')->with('status', 'Project deleted.');
     }
 
     private function validatedData(Request $request, ?int $ignoreId = null): array
@@ -114,7 +126,7 @@ class ProjectController extends Controller
             ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
             ->exists();
 
-        abort_if($exists, 422, 'Bu proje slug değeri zaten kullanılıyor.');
+        abort_if($exists, 422, 'This project slug is already in use.');
     }
 
     private function syncTags(Project $project, array $slugs): void
@@ -131,6 +143,6 @@ class ProjectController extends Controller
         $expected = collect($slugs)->map(fn ($slug) => strtolower((string) $slug))->filter()->unique()->values();
         $found = Tag::query()->whereIn('slug', $expected)->count();
 
-        abort_if($expected->count() !== $found, 422, 'Seçilen taglerden biri bulunamadı.');
+        abort_if($expected->count() !== $found, 422, 'One of the selected tags could not be found.');
     }
 }

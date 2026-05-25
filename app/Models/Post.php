@@ -49,11 +49,13 @@ class Post extends Model
             'title' => $this->title,
             'slug' => $this->slug,
             'summary' => $this->summary,
-            'cover' => [
-                'id' => 'post-cover-'.$this->id,
-                'url' => $this->cover_url ?: '/profile.svg',
-                'alt' => $this->cover_alt ?: $this->title,
-            ],
+            'cover' => $this->cover_url && $this->cover_url !== '/profile.svg'
+                ? [
+                    'id' => 'post-cover-'.$this->id,
+                    'url' => $this->cover_url,
+                    'alt' => $this->cover_alt ?: $this->title,
+                ]
+                : null,
             'tags' => $this->tags->pluck('slug')->values()->all(),
             'status' => $this->status,
             'visibility' => $this->visibility,
