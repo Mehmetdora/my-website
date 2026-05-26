@@ -494,6 +494,22 @@ function initQuillEditors() {
     });
 }
 
+function setAdminSidebarOpen(open) {
+    const sidebar = document.querySelector('[data-admin-sidebar]');
+    const overlay = document.querySelector('[data-admin-sidebar-overlay]');
+    const toggle = document.querySelector('[data-admin-sidebar-toggle]');
+
+    if (!sidebar || !overlay) return;
+
+    sidebar.classList.toggle('-translate-x-full', !open);
+    overlay.classList.toggle('hidden', !open);
+    toggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+}
+
 document.addEventListener('click', (event) => {
     const tagOption = event.target.closest('[data-tag-option]');
     if (tagOption) {
@@ -542,6 +558,19 @@ document.addEventListener('click', (event) => {
         menu?.classList.toggle('hidden');
     }
 
+    if (event.target.closest('[data-admin-sidebar-toggle]')) {
+        setAdminSidebarOpen(true);
+    }
+
+    if (event.target.closest('[data-admin-sidebar-close]') || event.target.matches('[data-admin-sidebar-overlay]')) {
+        setAdminSidebarOpen(false);
+    }
+
+    const adminSidebarLink = event.target.closest('[data-admin-sidebar] a');
+    if (adminSidebarLink && window.matchMedia('(max-width: 1023px)').matches) {
+        setAdminSidebarOpen(false);
+    }
+
     if (event.target.matches('[data-life-modal]')) {
         closeLifeModal(event.target);
     }
@@ -583,6 +612,14 @@ document.addEventListener('input', (event) => {
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         document.querySelectorAll('[data-life-modal]').forEach(closeLifeModal);
+        setAdminSidebarOpen(false);
+    }
+});
+
+window.addEventListener('resize', () => {
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+        setAdminSidebarOpen(false);
+        document.body.style.overflow = '';
     }
 });
 

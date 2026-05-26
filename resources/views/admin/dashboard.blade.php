@@ -5,7 +5,7 @@
     @include('admin.partials.sidebar', ['active' => 'dashboard'])
 
     <div class="lg:pl-72">
-        <header class="sticky top-0 z-30 border-b border-white/10 bg-[#0a0f1e]/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+        <header class="sticky top-[65px] z-30 border-b border-white/10 bg-[#0a0f1e]/95 px-4 py-4 backdrop-blur sm:px-6 lg:top-0 lg:px-8">
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <span class="section-label">Content Studio</span>
