@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['excerpt', 'location', 'visibility', 'published_at'])]
+#[Fillable(['post_type', 'excerpt', 'location', 'visibility', 'audio_url', 'audio_name', 'audio_mime', 'audio_size', 'published_at'])]
 class LifePost extends Model
 {
     protected function casts(): array
@@ -31,10 +31,17 @@ class LifePost extends Model
     {
         return [
             'id' => (string) $this->id,
+            'type' => $this->post_type ?: 'image',
             'excerpt' => $this->excerpt,
             'location' => $this->location,
             'published_at' => optional($this->published_at)->toDateString(),
             'images' => $this->images->map->toViewArray()->values()->all(),
+            'audio' => $this->audio_url ? [
+                'url' => $this->audio_url,
+                'name' => $this->audio_name,
+                'mime' => $this->audio_mime,
+                'size' => $this->audio_size,
+            ] : null,
         ];
     }
 }

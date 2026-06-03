@@ -90,9 +90,14 @@ class DatabaseSeeder extends Seeder
             $lifePost = LifePost::query()->updateOrCreate(
                 ['id' => $index + 1],
                 [
+                    'post_type' => 'image',
                     'excerpt' => $item['excerpt'],
                     'location' => $item['location'] ?? null,
                     'visibility' => 'public',
+                    'audio_url' => null,
+                    'audio_name' => null,
+                    'audio_mime' => null,
+                    'audio_size' => null,
                     'published_at' => $item['published_at'] ?? null,
                 ]
             );

@@ -494,6 +494,24 @@ function initQuillEditors() {
     });
 }
 
+function setLifePostType(type) {
+    document.querySelectorAll('[data-life-media-panel]').forEach((panel) => {
+        const active = panel.dataset.lifeMediaPanel === type;
+        panel.classList.toggle('hidden', !active);
+        panel.querySelectorAll('input, textarea, select').forEach((field) => {
+            field.disabled = !active;
+        });
+    });
+}
+
+function initLifePostTypePicker() {
+    const checked = document.querySelector('[data-life-post-type-option]:checked');
+
+    if (!checked) return;
+
+    setLifePostType(checked.value);
+}
+
 function setAdminSidebarOpen(open) {
     const sidebar = document.querySelector('[data-admin-sidebar]');
     const overlay = document.querySelector('[data-admin-sidebar-overlay]');
@@ -550,6 +568,11 @@ document.addEventListener('click', (event) => {
                 input.value = '';
             });
         }
+    }
+
+    const lifePostTypeOption = event.target.closest('[data-life-post-type-option]');
+    if (lifePostTypeOption) {
+        setLifePostType(lifePostTypeOption.value);
     }
 
     const toggle = event.target.closest('[data-mobile-toggle]');
@@ -629,10 +652,12 @@ if (document.readyState === 'loading') {
         initImageCroppers();
         initCarouselTracks();
         initLifeInfiniteScroll();
+        initLifePostTypePicker();
     });
 } else {
     initQuillEditors();
     initImageCroppers();
     initCarouselTracks();
     initLifeInfiniteScroll();
+    initLifePostTypePicker();
 }

@@ -4,7 +4,30 @@
     </button>
 
     <article class="max-h-[calc(100vh-1.5rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#101827] shadow-[0_30px_100px_-45px_rgb(244_114_182)]">
-        @if(!count($item['images']))
+        @if(($item['type'] ?? 'image') === 'audio')
+            <div class="relative overflow-hidden bg-[radial-gradient(circle_at_26%_18%,rgba(93,248,216,0.24),transparent_30%),linear-gradient(135deg,#0a0f1e,#132137_55%,#093c5d)] px-5 py-8 sm:px-8 sm:py-12">
+                <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/45 to-transparent"></div>
+                <div class="relative z-10 mx-auto max-w-3xl">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[#5DF8D8]/35 bg-[#5DF8D8]/12 text-[#5DF8D8] shadow-[0_0_45px_-18px_#5DF8D8]">
+                            <svg viewBox="0 0 24 24" class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                        </div>
+                        <div>
+                            <span class="section-label">Records</span>
+                            <p class="mt-1 text-sm font-semibold text-slate-300">{{ $item['audio']['name'] ?? 'Record' }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex h-20 items-end justify-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-5">
+                        @foreach([30, 52, 38, 70, 48, 88, 58, 42, 76, 54, 66, 36, 60, 44, 72, 40, 56, 34] as $height)
+                            <span class="w-2 rounded-full bg-[#5DF8D8]/75" style="height: {{ $height }}%"></span>
+                        @endforeach
+                    </div>
+                    @if(!empty($item['audio']['url']))
+                        <audio controls preload="metadata" src="{{ $item['audio']['url'] }}" class="mt-6 w-full"></audio>
+                    @endif
+                </div>
+            </div>
+        @elseif(!count($item['images']))
             <div class="bg-[#0a0f1e]">
                 <div class="flex aspect-[2/1] w-full items-center justify-center bg-[#172132]">
                     <span class="font-mono text-sm text-slate-500">Life</span>
@@ -36,6 +59,12 @@
 
         <footer class="border-t border-white/10 bg-[#101827] p-4 sm:p-5">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-slate-500">
+                @if(($item['type'] ?? 'image') === 'audio')
+                    <span class="inline-flex items-center gap-2 text-[#5DF8D8]">
+                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                        Records
+                    </span>
+                @endif
                 <span class="inline-flex items-center gap-2">
                     <svg viewBox="0 0 24 24" class="h-4 w-4 text-rose-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
                     {{ tr_date($item['published_at']) }}

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @php($isEdit = $mode === 'edit')
+@php($postType = old('post_type', $lifePost->post_type ?? 'image'))
 
 @section('content')
 <div class="min-h-screen bg-[#0a0f1e]">
@@ -42,12 +43,31 @@
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-extrabold text-white">Post Information</h2>
-                            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">My Life posts consist only of a description, date, location, and photos.</p>
+                            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Choose a photo post for one or more images, or a record post for a single audio file. A post cannot contain photos and audio at the same time.</p>
                         </div>
                         <button class="btn-primary min-h-10 px-4">{{ $isEdit ? 'Save Post' : 'Create Post' }}</button>
                     </div>
 
                     <div class="mt-6 grid gap-4 lg:grid-cols-2">
+                        <div class="grid gap-3 lg:col-span-2" data-life-post-type>
+                            <span class="text-sm font-semibold text-slate-300">Post type</span>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 transition has-[:checked]:border-[#5DF8D8] has-[:checked]:bg-[#5DF8D8]/10">
+                                    <input type="radio" name="post_type" value="image" class="mt-1 h-4 w-4 accent-[#5DF8D8]" data-life-post-type-option @checked($postType === 'image')>
+                                    <span>
+                                        <span class="block font-bold text-white">Photo post</span>
+                                        <span class="mt-1 block text-sm font-normal leading-6 text-slate-400">Share one or more photos with a description.</span>
+                                    </span>
+                                </label>
+                                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-4 transition has-[:checked]:border-[#5DF8D8] has-[:checked]:bg-[#5DF8D8]/10">
+                                    <input type="radio" name="post_type" value="audio" class="mt-1 h-4 w-4 accent-[#5DF8D8]" data-life-post-type-option @checked($postType === 'audio')>
+                                    <span>
+                                        <span class="block font-bold text-white">Record post</span>
+                                        <span class="mt-1 block text-sm font-normal leading-6 text-slate-400">Share one record with a description.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                         <label class="grid gap-2 text-sm font-semibold text-slate-300 lg:col-span-2">Description<textarea class="admin-textarea min-h-32" name="excerpt" placeholder="Post description">{{ old('excerpt', $lifePost->excerpt ?? '') }}</textarea></label>
                         <label class="grid gap-2 text-sm font-semibold text-slate-300">Location<input class="admin-input" name="location" value="{{ old('location', $lifePost->location ?? '') }}" placeholder="Istanbul"></label>
                         <label class="grid gap-2 text-sm font-semibold text-slate-300">Date<input class="admin-input" type="date" name="published_at" value="{{ old('published_at', optional($lifePost?->published_at)->toDateString() ?? now()->toDateString()) }}"></label>
@@ -61,7 +81,7 @@
                     </div>
                 </section>
 
-                <section class="panel p-6">
+                <section class="panel p-6 {{ $postType === 'image' ? '' : 'hidden' }}" data-life-media-panel="image">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <span class="section-label">Images</span>
@@ -119,6 +139,41 @@
                             @endforeach
                         @endforeach
                     </div>
+                </section>
+
+                <section class="panel p-6 {{ $postType === 'audio' ? '' : 'hidden' }}" data-life-media-panel="audio">
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <span class="section-label">Audio</span>
+                            <h2 class="mt-2 text-xl font-extrabold text-white">Records</h2>
+                            <p class="mt-2 text-sm leading-6 text-slate-400">Upload one MP3, WAV, OGG, M4A, AAC, or WebM audio file. Audio posts use the same description, location, and date fields.</p>
+                        </div>
+                    </div>
+
+                    @if($isEdit && !empty($lifePost?->audio_url))
+                        <div class="mt-6 rounded-lg border border-white/10 bg-white/5 p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-bold text-white">Current audio</h3>
+                                    <p class="mt-1 text-sm leading-6 text-slate-400">{{ $lifePost->audio_name ?: basename($lifePost->audio_url) }}</p>
+                                </div>
+                                <label class="inline-flex min-h-10 items-center gap-2 rounded-md border border-red-400/30 bg-red-500/10 px-4 text-sm font-bold text-red-100">
+                                    <input type="checkbox" name="delete_audio" value="1" class="h-4 w-4 accent-red-400">
+                                    Delete current audio
+                                </label>
+                            </div>
+                            <audio controls preload="metadata" src="{{ $lifePost->audio_url }}" class="mt-4 w-full"></audio>
+                        </div>
+                    @endif
+
+                    <label class="mt-6 grid gap-3 text-sm font-semibold text-slate-300">
+                        Upload audio file
+                        <input class="admin-input file:mr-4 file:rounded-md file:border-0 file:bg-[#5DF8D8] file:px-4 file:py-2 file:text-sm file:font-black file:text-[#07101f]" type="file" name="new_audio" accept=".mp3,.wav,.ogg,.m4a,.aac,.webm,audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac,audio/webm,video/webm">
+                        <span class="text-xs font-normal text-slate-500">MP3, WAV, OGG, M4A, AAC, or WebM. Maximum 20 MB.</span>
+                        @error('new_audio')
+                            <span class="rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100">{{ $message }}</span>
+                        @enderror
+                    </label>
                 </section>
             </form>
         </main>
