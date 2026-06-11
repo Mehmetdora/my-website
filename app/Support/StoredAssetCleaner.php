@@ -55,7 +55,7 @@ class StoredAssetCleaner
 
         if (str_starts_with($url, '/storage/')) {
             $path = substr($url, strlen('/storage/'));
-        } elseif (preg_match('#/storage/([^?#]+)#', $url, $matches)) {
+        } elseif (preg_match('~/storage/([^?#]+)~', $url, $matches)) {
             $path = $matches[1];
         } else {
             return null;
