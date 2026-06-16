@@ -3,7 +3,7 @@
 @section('content')
 <div class="flex min-h-screen items-center justify-center bg-[#0a0f1e] px-4 py-10">
     <div class="w-full max-w-md rounded-lg border border-white/10 bg-[#101827] p-6 shadow-2xl">
-        <span class="section-label">Admin</span>
+        <a href="{{ route('home') }}" class="section-label">Admin</a>
         <h1 class="mt-3 text-3xl font-extrabold text-white">Personal Website admin login</h1>
         <p class="mt-3 text-sm leading-6 text-slate-500">The admin panel uses CSRF-protected Laravel session authentication.</p>
 

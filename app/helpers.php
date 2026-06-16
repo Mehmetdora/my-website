@@ -222,6 +222,27 @@ if (! function_exists('sanitize_content_html')) {
             }
 
             $tag = strtolower($node->tagName);
+            $class = $node->getAttribute('class');
+
+            if ($tag === 'div' && str_contains($class, 'ql-code-block-container')) {
+                $lines = [];
+
+                foreach ($node->childNodes as $child) {
+                    if ($child instanceof DOMElement && str_contains($child->getAttribute('class'), 'ql-code-block')) {
+                        $lines[] = $child->textContent;
+                    }
+                }
+
+                if ($lines !== []) {
+                    $pre = $clean->createElement('pre');
+                    $code = $clean->createElement('code');
+                    $code->appendChild($clean->createTextNode(implode("\n", $lines)));
+                    $pre->appendChild($code);
+                    $parent->appendChild($pre);
+
+                    return;
+                }
+            }
 
             if (in_array($tag, $blockedTags, true)) {
                 return;

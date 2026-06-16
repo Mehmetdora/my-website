@@ -33,6 +33,17 @@ class ContentSanitizerTest extends TestCase
         $this->assertStringContainsString('rel="noopener noreferrer"', $clean);
     }
 
+    public function test_it_converts_quill_two_code_blocks_to_semantic_pre_code(): void
+    {
+        $html = '<div class="ql-code-block-container" spellcheck="false"><div class="ql-code-block">// FOSC/4 için clock sinyali</div><div class="ql-code-block">#define _XTAL_FREQ 4000000</div><div class="ql-code-block">void __interrupt() ISR(void)</div></div>';
+
+        $clean = sanitize_content_html($html);
+
+        $this->assertStringContainsString('<pre><code>// FOSC/4 için clock sinyali'."\n".'#define _XTAL_FREQ 4000000'."\n".'void __interrupt() ISR(void)</code></pre>', $clean);
+        $this->assertStringNotContainsString('ql-code-block', $clean);
+        $this->assertStringNotContainsString('spellcheck', $clean);
+    }
+
     public function test_it_restricts_iframe_sources(): void
     {
         $clean = sanitize_content_html('<iframe src="https://evil.example/embed"></iframe><iframe src="https://www.youtube.com/embed/demo"></iframe>');
